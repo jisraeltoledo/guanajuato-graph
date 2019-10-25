@@ -13,40 +13,37 @@
 
     <v-content>
       <v-layout row>
-        <v-flex xs4>
-          <v-subheader>Busqueda:</v-subheader>
-        </v-flex>
-        <v-flex xs4>
-          <v-text-field
+        <v-flex xs4 ma-5>
+          <v-text-field 
             v-model="query"
             name="input-2"
-            label="Label Text"
+            label="Nodo a Buscar"
             value="Input text"
             class="input-group--focused"
           ></v-text-field>
           
         </v-flex>
-        <v-flex xs4>
+        <v-flex xs4 ma-5>
           <v-btn color="info" @click="search">Buscar</v-btn>
         </v-flex>
       </v-layout>
       <v-layout row>
         
-        <v-flex xs5 ma-10>
+        <v-flex xs5 ma-5>
           <v-subheader>Targets</v-subheader>
           <v-text-field 
           v-model="asSource" 
           id="testing" 
           name="input-1" 
-          label="Label Text"></v-text-field>
+          label="Search result: Targets"></v-text-field>
         </v-flex>
-        <v-flex xs5 ma-10>
+        <v-flex xs5 ma-5>
           <v-subheader>Sources</v-subheader>
           <v-text-field 
           v-model="asTarget" 
           id="testing" 
           name="input-1" 
-          label="Label Text"></v-text-field>
+          label="Search Results: Sources"></v-text-field>
         </v-flex>
         </v-layout>
       <cytoscape ref="cy" :config="config" v-on:zoom="getZoom">
@@ -58,7 +55,9 @@
 
 <script>
 //import HelloWorld from "./components/HelloWorld";
-import network from "@/assets/network_sitc2_4digit.json";
+import network1 from "@/assets/network_sitc2_4digit.json";
+import network2 from "@/assets/network_hs92_4digit.json";
+
 export default {
   name: "App",
   components: {
@@ -76,16 +75,54 @@ export default {
     },
     search() {
       
-      this.asSource = network.edges.filter(el => {
-        return el.source === this.query;
-      }).map(a => a.target);;
-      this.asTarget = network.edges.filter(el => {
-        return el.target === this.query;
+      this.asSource = network1.edges.filter(el => {
+        return el.source == this.query;
+      }).map(a => a.target);
+      
+      this.asTarget = network1.edges.filter(el => {
+        return el.target == this.query;
       }).map(a => a.source);;
       
+      this.asSource2 = network2.edges.filter(el => {
+        return el.source == this.query;
+      }).map(a => a.target);
+      
+      this.asTarget2 = network2.edges.filter(el => {
+        return el.target == this.query;
+      }).map(a => a.source);
+      
+
+      this.asSource = this.asSource.concat (this.asSource2);
+      this.asTarget = this.asTarget.concat (this.asTarget2);
+    },
+    fillElements (network, number){
+      network.nodes.forEach(node => {
+      this.elements.push({
+        data: {
+          id: node.id +"_"+ number
+        },
+        position: {
+          x: node.x,
+          y: node.y
+        }
+      });
+    });
+    
+    network.edges.forEach(edge => {
+      let e = {
+        data: {
+          id: "e_" + ++this.i,
+          source: edge.source+"_"+ number,
+          target: edge.target+"_"+ number,
+          strength: edge.strength
+        }
+      };
+      this.elements.push(e);
+    });
     }
   },
   data: () => ({
+    i: 0,
     query: "",
     asSource: null,
     asTarget: null,
@@ -102,7 +139,7 @@ export default {
         {
           selector: "edge",
           style: {
-            width: 3,
+            width: "data(strength)",
             "line-color": "#ccc",
             "target-arrow-color": "#ccc",
             "target-arrow-shape": "triangle"
@@ -128,28 +165,8 @@ export default {
     });
   },
   created() {
-    network.nodes.forEach(node => {
-      this.elements.push({
-        data: {
-          id: node.id
-        },
-        position: {
-          x: node.x,
-          y: node.y
-        }
-      });
-    });
-    let i = 0;
-    network.edges.forEach(edge => {
-      this.elements.push({
-        data: {
-          id: "e_" + ++i,
-          source: edge.source,
-          target: edge.target,
-          width: edge.strength
-        }
-      });
-    });
+    this.fillElements (network1, "1");
+    this.fillElements (network2, "2");
   }
 };
 </script>
