@@ -70,9 +70,6 @@ export default {
     //HelloWorld
   },
   watch: {
-    net(nv) {
-      console.log(nv);
-    }
   },
   data: () => ({
     net: "sitc2",
@@ -163,7 +160,6 @@ export default {
       });
     },
     fit() {
-      console.log("fit", this.$refs);
       if (this.$refs.cy1) {
         this.$refs.cy1.cy.then(c => {
           c.container().style.height = "1000px";
@@ -181,8 +177,6 @@ export default {
   },
   mounted() {
     this.fit();
-    console.log(this.elements1);
-    console.log(this.elements2);
   },
   created() {
     this.fillElements(network1, this.elements1);
